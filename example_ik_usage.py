@@ -3,21 +3,18 @@ Run: python example_ik_usage.py
 """
 from inverse_kinematics import IKSolver
 
-# Explicit geometry (example numbers – replace with your hardware values)
-R_A = 180.0
-R_B = 90.0
-B_OFFSET = 50.0
-WIDTH = 800.0
-HEIGHT = 600.0
+# Explicit geometry (replace with your hardware values)
+R_A = 180.0      # Radius of moving circle A
+R_B = 90.0       # Radius of each base circle
+B_OFFSET = 50.0  # Half distance between base centers (bases at ±B_OFFSET on X)
 
-solver = IKSolver(r_a=R_A, r_b=R_B, b_offset=B_OFFSET, width=WIDTH, height=HEIGHT,
-                  flip_b1=False, flip_b2=False)
+solver = IKSolver(r_a=R_A, r_b=R_B, b_offset=B_OFFSET, flip_b1=False, flip_b2=False)
 
-# Sample target positions for circle A
+# Sample target positions for circle A (in solver coordinates, origin midway between bases)
 targets = [
-    (WIDTH * 0.5, HEIGHT * 0.5 - 20),  # nominal
-    (WIDTH * 0.5 + 30, HEIGHT * 0.5 - 40),
-    (WIDTH * 0.5 - 10, HEIGHT * 0.5 + 60),
+    (0.0, -20.0),   # directly above midpoint
+    (30.0, -40.0),  # up and right
+    (-10.0, 60.0),  # down and left
 ]
 
 for t in targets:

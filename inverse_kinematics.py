@@ -132,22 +132,24 @@ class IKSolution:
 class IKSolver:
     """Dual-circle IK solver selecting opposite signed intersections for two bases.
 
+    Coordinate System:
+        - Origin (0,0) is the midpoint between base centers B1 and B2.
+        - +X points to the right (toward B2), +Y points downward.
+        - Base centers are located at (-b_offset, 0) and (+b_offset, 0).
+
     Parameters must be explicit (no defaults) for safe hardware integration.
     flip_b1 / flip_b2 optionally invert final angles for motor inversion.
     """
-    def __init__(self, r_a: float, r_b: float, b_offset: float, width: float, height: float,
+    def __init__(self, r_a: float, r_b: float, b_offset: float,
                  *, flip_b1: bool = False, flip_b2: bool = False) -> None:
         self.r_a = float(r_a)
         self.r_b = float(r_b)
         self.b_offset = float(b_offset)
-        self.width = float(width)
-        self.height = float(height)
         self.flip_b1 = bool(flip_b1)
         self.flip_b2 = bool(flip_b2)
-        cx = self.width * 0.5
-        cy = self.height * 0.5
-        self._b1_center = (cx - self.b_offset, cy)
-        self._b2_center = (cx + self.b_offset, cy)
+        # Base centers in local solver coordinates
+        self._b1_center = (-self.b_offset, 0.0)
+        self._b2_center = ( self.b_offset, 0.0)
 
     def solve(self, a_center: Vec2) -> IKSolution:
         a = a_center

@@ -34,22 +34,23 @@ installed for visualization or testing.
 ```python
 from inverse_kinematics import IKSolver
 
-# Explicit geometry (replace with your hardware values)
+Explicit geometry (replace with your hardware values). Coordinate system:
+    - Origin (0,0) midway between the two bases.
+    - Bases at (-b_offset, 0) and (+b_offset, 0).
+    - +X right, +Y down.
 solver = IKSolver(
     r_a=180.0,
     r_b=90.0,
     b_offset=50.0,
-    width=800.0,
-    height=600.0,
     flip_b1=False,
     flip_b2=False,
 )
 
-# Target effector positions (circle A centers)
+Target effector positions (circle A centers) in solver coordinates
 targets = [
-    (400.0, 280.0),
-    (430.0, 260.0),
-    (390.0, 340.0),
+    (0.0, -20.0),    # above midpoint
+    (30.0, -40.0),   # up-right
+    (-10.0, 60.0),   # down-left
 ]
 
 for t in targets:

@@ -31,10 +31,10 @@ from inverse_kinematics import IKSolver
 Color = Tuple[int, int, int]
 
 # ---------------- Configuration (edit as needed) ----------------
-WIDTH, HEIGHT = 800, 600
-R_A = 180.0         # Radius of moving circle A
-R_B = 90.0          # Radius of each base circle (B1/B2)
-B_OFFSET = 50.0     # Horizontal offset from center to each base
+WIDTH, HEIGHT = 800, 600          # Only for visualization window
+R_A = 180.0                      # Radius of moving circle A (solver units)
+R_B = 90.0                       # Radius of each base circle (solver units)
+B_OFFSET = 50.0                  # Base half-spacing: bases at (-B_OFFSET,0) and (+B_OFFSET,0)
 FLIP_B1 = False     # Invert angle sign for leg B1
 FLIP_B2 = False     # Invert angle sign for leg B2
 BG_COLOR: Color = (20, 20, 25)
@@ -47,15 +47,23 @@ TEXT_COLOR: Color = (235, 235, 235)
 GUIDE_COLOR: Color = (90, 100, 120)
 FPS = 60
 
-# Derive base centers (must match solver's internal calculation)
-CENTER_X = WIDTH * 0.5
-CENTER_Y = HEIGHT * 0.5
-B1_CENTER = (CENTER_X - B_OFFSET, CENTER_Y)
-B2_CENTER = (CENTER_X + B_OFFSET, CENTER_Y)
+SCREEN_ORIGIN_X = WIDTH * 0.5   # Screen pixel where solver (0,0) is drawn
+SCREEN_ORIGIN_Y = HEIGHT * 0.5  # Placed at visual center
 
-# Instantiate solver (no defaults allowed by design)
-SOLVER = IKSolver(r_a=R_A, r_b=R_B, b_offset=B_OFFSET, width=WIDTH, height=HEIGHT,
+# Instantiate solver (origin at 0,0 midpoint between bases)
+SOLVER = IKSolver(r_a=R_A, r_b=R_B, b_offset=B_OFFSET,
                   flip_b1=FLIP_B1, flip_b2=FLIP_B2)
+
+def solver_to_screen(p):
+    # (x,y) with +y down already matches screen y direction
+    return (int(SCREEN_ORIGIN_X + p[0]), int(SCREEN_ORIGIN_Y + p[1]))
+
+def screen_to_solver(px, py):
+    return (float(px - SCREEN_ORIGIN_X), float(py - SCREEN_ORIGIN_Y))
+
+# Precompute base centers in screen coordinates
+B1_CENTER_SCREEN = solver_to_screen((-B_OFFSET, 0.0))
+B2_CENTER_SCREEN = solver_to_screen(( B_OFFSET, 0.0))
 
 # ---------------- Helper drawing functions ----------------
 
@@ -83,54 +91,57 @@ def main() -> None:
                 running = False
 
         mouse_x, mouse_y = pygame.mouse.get_pos()
-        a_center = (float(mouse_x), float(mouse_y))
+        # Convert mouse position (screen) into solver coordinates
+        a_center = screen_to_solver(mouse_x, mouse_y)
 
         solution = SOLVER.solve(a_center)
 
         screen.fill(BG_COLOR)
 
         # Circles
-        draw_circle(screen, a_center, R_A, CIRCLE_A_COLOR, width=2)
-        draw_circle(screen, B1_CENTER, R_B, CIRCLE_B_COLOR, width=2)
-        draw_circle(screen, B2_CENTER, R_B, CIRCLE_B_COLOR, width=2)
+        draw_circle(screen, solver_to_screen(a_center), R_A, CIRCLE_A_COLOR, width=2)
+        draw_circle(screen, B1_CENTER_SCREEN, R_B, CIRCLE_B_COLOR, width=2)
+        draw_circle(screen, B2_CENTER_SCREEN, R_B, CIRCLE_B_COLOR, width=2)
 
         # Guides from A to bases
-        pygame.draw.line(screen, GUIDE_COLOR, (int(a_center[0]), int(a_center[1])), (int(B1_CENTER[0]), int(B1_CENTER[1])), 1)
-        pygame.draw.line(screen, GUIDE_COLOR, (int(a_center[0]), int(a_center[1])), (int(B2_CENTER[0]), int(B2_CENTER[1])), 1)
+        pygame.draw.line(screen, GUIDE_COLOR, solver_to_screen(a_center), B1_CENTER_SCREEN, 1)
+        pygame.draw.line(screen, GUIDE_COLOR, solver_to_screen(a_center), B2_CENTER_SCREEN, 1)
 
         # B1 leg
         b1 = solution.b1
         if b1.intersection is not None:
             ix, iy = b1.intersection
-            pygame.draw.line(screen, LEG_COLOR_1, (int(B1_CENTER[0]), int(B1_CENTER[1])), (int(ix), int(iy)), 2)
-            pygame.draw.line(screen, LEG_COLOR_2, (int(ix), int(iy)), (int(a_center[0]), int(a_center[1])), 2)
-            draw_point(screen, (ix, iy), INTERSECTION_COLOR)
+            p_inter = solver_to_screen((ix, iy))
+            pygame.draw.line(screen, LEG_COLOR_1, B1_CENTER_SCREEN, p_inter, 2)
+            pygame.draw.line(screen, LEG_COLOR_2, p_inter, solver_to_screen(a_center), 2)
+            draw_point(screen, p_inter, INTERSECTION_COLOR)
             if b1.angle_from_up_cw is not None:
                 label = f"b1 {math.degrees(b1.angle_from_up_cw):.1f}°"
             else:
                 label = "b1 --"
             ts = font.render(label, True, TEXT_COLOR)
-            screen.blit(ts, (int(ix) + 6, int(iy) - 6))
+            screen.blit(ts, (p_inter[0] + 6, p_inter[1] - 6))
         else:
             ts = font.render("b1 unreachable", True, TEXT_COLOR)
-            screen.blit(ts, (int(B1_CENTER[0]) - 40, int(B1_CENTER[1]) - 60))
+            screen.blit(ts, (B1_CENTER_SCREEN[0] - 40, B1_CENTER_SCREEN[1] - 60))
 
         # B2 leg
         b2 = solution.b2
         if b2.intersection is not None:
             ix, iy = b2.intersection
-            pygame.draw.line(screen, LEG_COLOR_1, (int(B2_CENTER[0]), int(B2_CENTER[1])), (int(ix), int(iy)), 2)
-            pygame.draw.line(screen, LEG_COLOR_2, (int(ix), int(iy)), (int(a_center[0]), int(a_center[1])), 2)
-            draw_point(screen, (ix, iy), INTERSECTION_COLOR)
+            p_inter = solver_to_screen((ix, iy))
+            pygame.draw.line(screen, LEG_COLOR_1, B2_CENTER_SCREEN, p_inter, 2)
+            pygame.draw.line(screen, LEG_COLOR_2, p_inter, solver_to_screen(a_center), 2)
+            draw_point(screen, p_inter, INTERSECTION_COLOR)
             if b2.angle_from_up_cw is not None:
                 label = f"b2 {math.degrees(b2.angle_from_up_cw):.1f}°"
             else:
                 label = "b2 --"
             ts = font.render(label, True, TEXT_COLOR)
-            screen.blit(ts, (int(ix) + 6, int(iy) - 6))
+            screen.blit(ts, (p_inter[0] + 6, p_inter[1] - 6))
         else:
             ts = font.render("b2 unreachable", True, TEXT_COLOR)
-            screen.blit(ts, (int(B2_CENTER[0]) - 40, int(B2_CENTER[1]) - 60))
+            screen.blit(ts, (B2_CENTER_SCREEN[0] - 40, B2_CENTER_SCREEN[1] - 60))
 
         # Combined status
         if not solution.all_reachable:
