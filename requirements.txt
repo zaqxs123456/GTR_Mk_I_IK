@@ -1,0 +1,5 @@
+numpy
+
+# Optional (not required for core IK solver):
+# pygame        # for visualization examples
+# pytest        # for running tests
