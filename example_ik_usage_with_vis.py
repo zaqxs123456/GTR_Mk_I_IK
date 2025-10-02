@@ -116,7 +116,7 @@ def main() -> None:
             pygame.draw.line(screen, LEG_COLOR_2, p_inter, solver_to_screen(a_center), 2)
             draw_point(screen, p_inter, INTERSECTION_COLOR)
             if b1.angle_from_up_cw is not None:
-                label = f"b1 {math.degrees(b1.angle_from_up_cw):.1f}°"
+                label = f"b1 {math.degrees(b1.angle_from_up_cw):.1f}°"  # 0–360°
             else:
                 label = "b1 --"
             ts = font.render(label, True, TEXT_COLOR)
@@ -134,7 +134,7 @@ def main() -> None:
             pygame.draw.line(screen, LEG_COLOR_2, p_inter, solver_to_screen(a_center), 2)
             draw_point(screen, p_inter, INTERSECTION_COLOR)
             if b2.angle_from_up_cw is not None:
-                label = f"b2 {math.degrees(b2.angle_from_up_cw):.1f}°"
+                label = f"b2 {math.degrees(b2.angle_from_up_cw):.1f}°"  # 0–360°
             else:
                 label = "b2 --"
             ts = font.render(label, True, TEXT_COLOR)

@@ -7,7 +7,7 @@ needs to be translated into motor/actuator angles at two bases (B1, B2).
 
 ## Features
 - Deterministic selection of one intersection per base (opposite signed internal angles)
-- Clockwise-positive angle output from the global UP vector to each leg
+- Clockwise-positive angle output from the global UP vector to each leg, normalized to 0–2π (0–360°)
 - Optional per-leg angle flipping (`flip_b1`, `flip_b2`) for inverted motor installations
 - Pure NumPy dependency for the core solver (no heavy imaging or GUI libs required)
 - Batch solve convenience
@@ -59,7 +59,7 @@ for t in targets:
         print(f"Target {t}: unreachable")
     else:
         a1, a2 = angles
-        print(f"Target {t}: b1={a1:.3f} rad, b2={a2:.3f} rad")
+    print(f"Target {t}: b1={a1:.3f} rad, b2={a2:.3f} rad (0–2π range)")
 ```
 
 ## Handling Unreachable Targets

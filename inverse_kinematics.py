@@ -168,6 +168,9 @@ class IKSolver:
             angle_cw = Geometry.angle_diff(up, v_math, clockwise=True)
             if self.flip_b1:
                 angle_cw = -angle_cw
+            # Normalize to [0, 2π)
+            if angle_cw < 0:
+                angle_cw = (angle_cw % (2 * np.pi))
             legs['b1'] = LegSolution('b1', sel_b1, angle_cw)
         else:
             legs['b1'] = LegSolution('b1', None, None)
@@ -178,6 +181,8 @@ class IKSolver:
             angle_cw = Geometry.angle_diff(up, v_math, clockwise=True)
             if self.flip_b2:
                 angle_cw = -angle_cw
+            if angle_cw < 0:
+                angle_cw = (angle_cw % (2 * np.pi))
             legs['b2'] = LegSolution('b2', sel_b2, angle_cw)
         else:
             legs['b2'] = LegSolution('b2', None, None)

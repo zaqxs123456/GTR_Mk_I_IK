@@ -23,4 +23,4 @@ for t in targets:
         print(f"Target {t}: unreachable")
     else:
         a1, a2 = angles
-        print(f"Target {t}: angle_b1={a1:.3f} rad, angle_b2={a2:.3f} rad")
+    print(f"Target {t}: angle_b1={a1:.3f} rad, angle_b2={a2:.3f} rad (0–2π range)")
