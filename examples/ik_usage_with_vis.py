@@ -8,8 +8,8 @@ This script uses pygame to:
 Prerequisites:
     pip install pygame numpy
 
-Run:
-    python example_ik_usage_with_vis.py
+Run from project root:
+    python examples/ik_usage_with_vis.py
 
 Close the window or press ESC to exit.
 
@@ -18,7 +18,10 @@ NOTE: This file is for debugging / demonstration only and is optional.
 from __future__ import annotations
 import math
 import sys
+from pathlib import Path
 from typing import Tuple
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 try:
     import pygame  # type: ignore
@@ -26,7 +29,7 @@ except ImportError as e:  # pragma: no cover
     print("pygame not installed. Install with: pip install pygame")
     sys.exit(1)
 
-from inverse_kinematics import IKSolver
+from ik_solver import IKSolver
 
 Color = Tuple[int, int, int]
 

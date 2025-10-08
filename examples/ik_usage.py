@@ -1,7 +1,14 @@
 """Example usage of the inverse kinematics solver without any GUI.
-Run: python example_ik_usage.py
+Run from project root: python examples/ik_usage.py
 """
-from inverse_kinematics import IKSolver
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
+from ik_solver import IKSolver
 
 # Explicit geometry (replace with your hardware values)
 R_A = 180.0      # Radius of moving circle A
@@ -12,8 +19,8 @@ solver = IKSolver(r_a=R_A, r_b=R_B, b_offset=B_OFFSET, flip_b1=False, flip_b2=Fa
 
 # Sample target positions for circle A (in solver coordinates, origin midway between bases)
 targets = [
-    (0.0, -20.0),   # directly above midpoint
-    (30.0, -40.0),  # up and right
+    (0.0, 80.0),   # directly above midpoint
+    (30.0, 120.0),  # up and right
     (-10.0, 60.0),  # down and left
 ]
 
@@ -23,4 +30,4 @@ for t in targets:
         print(f"Target {t}: unreachable")
     else:
         a1, a2 = angles
-    print(f"Target {t}: angle_b1={a1:.3f} rad, angle_b2={a2:.3f} rad (0–2π range)")
+        print(f"Target {t}: angle_b1={a1:.3f} rad, angle_b2={a2:.3f} rad (0–2π range)")
