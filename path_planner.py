@@ -77,12 +77,12 @@ class PathPlanner:
 		angles = self._solve_angles(points)
 
 		plans: List[SegmentPlan] = []
-		for idx, ((p0, p1), (a0, a1)) in enumerate(zip(segments, angles_pairs(angles))):
+		for idx, ((p0, p1), (a0, a1)) in enumerate(zip(segments, self._angles_pairs(angles))):
 			seg_length = math.hypot(p1[0] - p0[0], p1[1] - p0[1])
 			duration = seg_length / self.linear_speed if seg_length > 0 else 0.0
 
-			b1_delta = shortest_angle_delta(a0[0], a1[0])
-			b2_delta = shortest_angle_delta(a0[1], a1[1])
+			b1_delta = self._shortest_angle_delta(a0[0], a1[0])
+			b2_delta = self._shortest_angle_delta(a0[1], a1[1])
 			b1_velocity = b1_delta / duration if duration > 0 else 0.0
 			b2_velocity = b2_delta / duration if duration > 0 else 0.0
 
@@ -132,14 +132,14 @@ class PathPlanner:
 		return angles
 
 
-def shortest_angle_delta(start: float, end: float) -> float:
-	"""Return the minimal signed angle delta taking wrap-around into account."""
-	diff = (end - start + math.pi) % (2 * math.pi) - math.pi
-	return diff
+	def _shortest_angle_delta(start: float, end: float) -> float:
+		"""Return the minimal signed angle delta taking wrap-around into account."""
+		diff = (end - start + math.pi) % (2 * math.pi) - math.pi
+		return diff
 
 
-def angles_pairs(angles: Sequence[Tuple[float, float]]) -> Iterable[Tuple[Tuple[float, float], Tuple[float, float]]]:
-	"""Yield consecutive angle pairs from a sequence of (b1, b2) angles."""
-	for i in range(len(angles) - 1):
-		yield angles[i], angles[i + 1]
+	def _angles_pairs(angles: Sequence[Tuple[float, float]]) -> Iterable[Tuple[Tuple[float, float], Tuple[float, float]]]:
+		"""Yield consecutive angle pairs from a sequence of (b1, b2) angles."""
+		for i in range(len(angles) - 1):
+			yield angles[i], angles[i + 1]
 
