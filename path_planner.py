@@ -132,13 +132,13 @@ class PathPlanner:
 		return angles
 
 
-	def _shortest_angle_delta(start: float, end: float) -> float:
+	def _shortest_angle_delta(self, start: float, end: float) -> float:
 		"""Return the minimal signed angle delta taking wrap-around into account."""
 		diff = (end - start + math.pi) % (2 * math.pi) - math.pi
 		return diff
 
 
-	def _angles_pairs(angles: Sequence[Tuple[float, float]]) -> Iterable[Tuple[Tuple[float, float], Tuple[float, float]]]:
+	def _angles_pairs(self, angles: Sequence[Tuple[float, float]]) -> Iterable[Tuple[Tuple[float, float], Tuple[float, float]]]:
 		"""Yield consecutive angle pairs from a sequence of (b1, b2) angles."""
 		for i in range(len(angles) - 1):
 			yield angles[i], angles[i + 1]
